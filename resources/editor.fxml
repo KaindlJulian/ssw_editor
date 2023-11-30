@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefHeight="600.0" prefWidth="800.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+    <MenuBar>
+        <Menu mnemonicParsing="false" text="File">
+            <MenuItem mnemonicParsing="false" onAction="#onMenuOpen" text="Open"/>
+            <MenuItem mnemonicParsing="false" onAction="#onMenuSave" text="Save"/>
+            <MenuItem mnemonicParsing="false" onAction="#onMenuClose" text="Close"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Edit">
+            <MenuItem mnemonicParsing="false" onAction="#onMenuCopy" text="Copy"/>
+            <MenuItem mnemonicParsing="false" onAction="#onMenuCut" text="Cut"/>
+            <MenuItem mnemonicParsing="false" onAction="#onMenuPaste" text="Paste"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Navigate">
+            <MenuItem mnemonicParsing="false" text="Find Next"/>
+            <MenuItem mnemonicParsing="false" text="Find All"/>
+        </Menu>
+    </MenuBar>
+    <AnchorPane prefHeight="600.0" prefWidth="800.0">
+        <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                 AnchorPane.topAnchor="0.0"/>
+    </AnchorPane>
+</VBox>

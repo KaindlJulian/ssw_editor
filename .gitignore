@@ -1,0 +1,6 @@
+out/
+libs/
+.idea/
+
+.scratch
+editor.iml
