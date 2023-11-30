@@ -1,7 +1,9 @@
 package view;
 
+import com.sun.javafx.tk.FontMetrics;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.text.Font;
 import text.Piece;
 import text.PieceList;
 import text.UpdateEvent;
@@ -15,6 +17,8 @@ public class TextView extends Canvas implements UpdateEventListener {
     final PieceList text;
     final GraphicsContext g;
 
+
+
     public TextView(File file, double width, double height) throws IOException {
         super(width, height);
         this.text = new PieceList(new Piece(file, 0, (int) file.length())); // todo fix for unicode
@@ -24,6 +28,7 @@ public class TextView extends Canvas implements UpdateEventListener {
     }
 
     private void draw() {
+        FontMetrics fm = com.sun.javafx.tk.Toolkit.getToolkit().getFontLoader().getFontMetrics(Font.font("Arial", 20));
         g.fillText("is.text = new PieceList(new", 15, 15);
     }
 

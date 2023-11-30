@@ -1,18 +1,11 @@
-import javafx.beans.Observable;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ObservableIntegerValue;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.stage.FileChooser;
-import text.Piece;
-import text.PieceList;
 import view.TextView;
 
-import javax.tools.Tool;
 import java.io.File;
 import java.io.IOException;
 

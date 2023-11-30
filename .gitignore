@@ -3,4 +3,4 @@ libs/
 .idea/
 
 .scratch
-editor.iml
+*.iml
