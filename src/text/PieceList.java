@@ -1,13 +1,14 @@
 package text;
 
+import view.StyledCharacter;
+
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
+import java.nio.ByteBuffer;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class PieceList implements Iterable<Piece> {
     int totalLength;
@@ -15,6 +16,7 @@ public class PieceList implements Iterable<Piece> {
     final File scratch;
     final FileWriter scratchWriter;
     private final List<UpdateEventListener> listeners;
+    private final TreeSet<Integer> newLinePositions;
 
     public PieceList(Piece firstPiece) throws IOException {
         this.firstPiece = firstPiece;
@@ -24,6 +26,15 @@ public class PieceList implements Iterable<Piece> {
         this.scratch.createNewFile();
         this.scratchWriter = new FileWriter(scratch, StandardCharsets.UTF_8);
         this.listeners = new ArrayList<>();
+
+        this.newLinePositions = new TreeSet<>();
+        String a = Files.readString(firstPiece.file.toPath());
+        newLinePositions.add(0);
+        for (int i = 0; i < a.length(); i++) {
+            if (a.charAt(i) == '\n') {
+                newLinePositions.add(i);
+            }
+        }
     }
 
     /**
@@ -58,22 +69,58 @@ public class PieceList implements Iterable<Piece> {
      * @param position  The position after which the character should be inserted.
      * @param character The character (UTF-8).
      */
-    public void insert(int position, int character) throws IOException {
+    public void insert(int position, int character) {
         Piece p = split(position);
 
         // p is not the last piece on the scratch file
-        if (p.file != scratch || p.length + p.offset != scratch.length()) {
-            Piece q = new Piece(scratch, 0, (int) scratch.length());
+        if (p.file != scratch || p.length + p.offset < scratch.length()) {
+            Piece q = new Piece(scratch, (int) scratch.length(), 0);
             q.next = p.next;
             p.next = q;
             p = q;
         }
 
-        scratchWriter.write(character);
-        scratchWriter.flush();
+        try {
+            scratchWriter.write(character);
+            scratchWriter.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         p.length++;
         totalLength++;
-        fireUpdateEvent(new UpdateEvent.Insert(position, ""));
+        fireUpdateEvent(new UpdateEvent.Insert(position, String.valueOf((char) character)));
+    }
+
+    /**
+     * Inserts a string at a position in the text.
+     *
+     * @param position  The position after which the character should be inserted.
+     * @param text The string.
+     */
+    public void insert(int position, String text) {
+        Piece p = split(position);
+
+        // p is not the last piece on the scratch file
+        if (p.file != scratch || p.length + p.offset < scratch.length()) {
+            Piece q = new Piece(scratch, (int) scratch.length(), 0);
+            q.next = p.next;
+            p.next = q;
+            p = q;
+        }
+
+        for (char character : text.toCharArray()) {
+            try {
+                scratchWriter.write(character);
+                scratchWriter.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        p.length += text.length();
+        totalLength += text.length();
+        fireUpdateEvent(new UpdateEvent.Insert(position, text));
     }
 
     /**
@@ -86,6 +133,7 @@ public class PieceList implements Iterable<Piece> {
         Piece a = split(from);
         Piece b = split(to);
         a.next = b.next;
+        totalLength = totalLength - (to - from);
         fireUpdateEvent(new UpdateEvent.Delete(from, to));
     }
 
@@ -99,6 +147,67 @@ public class PieceList implements Iterable<Piece> {
 
     private void fireUpdateEvent(UpdateEvent e) {
         listeners.forEach(l -> l.update(e));
+    }
+
+    /**
+     * @return the character at given position
+     */
+    public char readCharAt(int position) {
+        // find piece containing the position
+        Piece p = firstPiece;
+        int length = p.length;
+        while (position > length - 1) {
+            if (p.next == null) {
+                return '\0';
+            }
+            p = p.next;
+            length += p.length;
+        }
+
+        int offset = p.offset + p.length - length + position;
+
+        try (RandomAccessFile f = new RandomAccessFile(p.file, "r")) {
+            f.seek(offset);
+            byte[] bytes = new byte[4]; // Maximum bytes needed to represent a UTF-8 character
+            f.read(bytes);
+
+            Charset utf8Charset = Charset.forName("UTF-8");
+            ByteBuffer buffer = ByteBuffer.wrap(bytes);
+            char character = utf8Charset.decode(buffer).charAt(0);
+
+            return character;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public StyledCharacter readStyledCharAt(int position) {
+        // find piece containing the position
+        Piece p = firstPiece;
+        int length = p.length;
+        while (position > length - 1) {
+            if (p.next == null) {
+                return null;
+            }
+            p = p.next;
+            length += p.length;
+        }
+
+        int offset = p.offset + p.length - length + position;
+
+        try (RandomAccessFile f = new RandomAccessFile(p.file, "r")) {
+            f.seek(offset);
+            byte[] bytes = new byte[4]; // Maximum bytes needed to represent a UTF-8 character
+            f.read(bytes);
+
+            Charset utf8Charset = StandardCharsets.UTF_8;
+            ByteBuffer buffer = ByteBuffer.wrap(bytes);
+            char character = utf8Charset.decode(buffer).charAt(0);
+
+            return new StyledCharacter(character, p.font, p.color);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -119,6 +228,10 @@ public class PieceList implements Iterable<Piece> {
         }
 
         Files.write(firstPiece.file.toPath(), fileBuffer, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    public int getTotalLength() {
+        return this.totalLength;
     }
 
     @Override

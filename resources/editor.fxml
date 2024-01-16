@@ -1,28 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="600.0" prefWidth="800.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea"
+<VBox prefHeight="500.0" prefWidth="500.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
     <MenuBar>
         <Menu mnemonicParsing="false" text="File">
-            <MenuItem mnemonicParsing="false" onAction="#onMenuOpen" text="Open"/>
-            <MenuItem mnemonicParsing="false" onAction="#onMenuSave" text="Save"/>
-            <MenuItem mnemonicParsing="false" onAction="#onMenuClose" text="Close"/>
+            <MenuItem mnemonicParsing="false" onAction="#onMenuOpen" text="Open">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="O" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+                </accelerator>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#onMenuSave" text="Save">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+                </accelerator>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#onMenuSaveAll" text="Save All">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="DOWN" shortcut="DOWN"/>
+                </accelerator>
+            </MenuItem>
         </Menu>
         <Menu mnemonicParsing="false" text="Edit">
-            <MenuItem mnemonicParsing="false" onAction="#onMenuCopy" text="Copy"/>
-            <MenuItem mnemonicParsing="false" onAction="#onMenuCut" text="Cut"/>
-            <MenuItem mnemonicParsing="false" onAction="#onMenuPaste" text="Paste"/>
+            <MenuItem mnemonicParsing="false" onAction="#onMenuCopy" text="Copy">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+                </accelerator>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#onMenuCut" text="Cut">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="X" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+                </accelerator>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#onMenuPaste" text="Paste">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="V" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
+                </accelerator>
+            </MenuItem>
         </Menu>
         <Menu mnemonicParsing="false" text="Navigate">
-            <MenuItem mnemonicParsing="false" text="Find Next"/>
-            <MenuItem mnemonicParsing="false" text="Find All"/>
+            <MenuItem mnemonicParsing="false" text="Find Next">
+                <graphic>
+                    <TextField fx:id="searchInput" onAction="#onSearchNext"/>
+                </graphic>
+            </MenuItem>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Style">
+            <MenuItem mnemonicParsing="false" text="Font">
+                <graphic>
+                    <ChoiceBox fx:id="fontChoiceBox" onAction="#onSetFont" prefWidth="150.0"/>
+                </graphic>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" text="Color">
+                <graphic>
+                    <TextField fx:id="colorInput" onAction="#onSetColor"/>
+                </graphic>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" text="Font Size">
+                <graphic>
+                    <TextField fx:id="fontSizeInput" onAction="#onSetFontSize"/>
+                </graphic>
+            </MenuItem>
         </Menu>
     </MenuBar>
-    <AnchorPane prefHeight="600.0" prefWidth="800.0">
-        <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+    <AnchorPane VBox.vgrow="ALWAYS">
+        <TabPane fx:id="tabPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                  AnchorPane.topAnchor="0.0"/>
     </AnchorPane>
 </VBox>

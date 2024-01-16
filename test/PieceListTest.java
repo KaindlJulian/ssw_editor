@@ -16,13 +16,35 @@ public class PieceListTest {
 
     @Test
     public void test() throws IOException {
-        File originalFile = new File("test-files/example.txt");
+        File originalFile = new File("test-files/one-line.txt");
         Piece first = new Piece(originalFile, 0, (int)originalFile.length());
         PieceList pl = new PieceList(first);
 
-        pl.insert(1, "<".getBytes(StandardCharsets.UTF_8)[0]);
-        pl.insert(2, ">".getBytes(StandardCharsets.UTF_8)[0]);
+        pl.insert(8, 'A');
+        pl.insert(9, 'A');
 
-        pl.save();
+        printPieceList(pl);
+
+        pl.delete(9, 10);
+        pl.delete(8, 9);
+
+        printPieceList(pl);
+
+        pl.insert(8, 'A');
+
+        printPieceList(pl);
+    }
+
+    private void printPieceList(PieceList pl) {
+        int position = 0;
+        char character = pl.readCharAt(position);
+        position++;
+        StringBuilder s = new StringBuilder();
+        while (character != '\0' && character != '\n') {
+            s.append(character);
+            character = pl.readCharAt(position);
+            position++;
+        }
+        System.out.println(s);
     }
 }

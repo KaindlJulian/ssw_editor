@@ -2,26 +2,27 @@
     -fx-background-color: #2E3440;
 }
 
-.menu-item, .label, .tab-label  {
+.menu-item, .label, .tab-label {
     -fx-text-fill: #ECEFF4;
     -fx-padding: 0.3em;
 }
 
 .menu-item {
-    -fx-padding: 4 70 4 4;
+    -fx-padding: 4;
 }
 
 .menu-item:focused, .menu:hover {
     -fx-background-color: #495165;
 }
 
-.tab-header-background, .tab  {
+.tab-header-background, .tab {
     -fx-background-color: #3B4252;
 }
 
 .tab-pane {
     -color-tab-bg-selected: #2E3440;
     -color-tab-fg-selected: #ECEFF4;
+    -fx-background-color: #1a1c25;
 }
 
 .current-tab {
@@ -32,4 +33,36 @@
 
 .focus-indicator {
     -fx-border-color: none;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-border-radius: 2.0em;
+}
+
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-padding: 0.0 10.0 0.0 0.0;
+}
+
+.scroll-bar:vertical .increment-arrow,
+.scroll-bar:vertical .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0.0 0.15em;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #8694b6;
+    -fx-background-insets: 2.0, 0.0, 0.0;
+    -fx-background-radius: 2.0em;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #495165;
+    -fx-background-insets: 2.0, 0.0, 0.0;
+    -fx-background-radius: 1.0em;
 }
