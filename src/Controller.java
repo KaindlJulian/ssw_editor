@@ -8,6 +8,8 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import view.TextView;
 
@@ -147,37 +149,33 @@ public class Controller {
 
     @FXML
     protected void onMenuCopy() {
-        if (!tabPane.getSelectionModel().isEmpty()) {
-            StackPane sp = (StackPane) tabPane.getSelectionModel().getSelectedItem().getContent();
-            TextView v = (TextView) sp.getChildrenUnmodifiable().get(0);
-            v.handleClipboardCopy();
+        TextView activeView = getActiveView();
+        if (activeView != null) {
+            activeView.handleClipboardCopy();
         }
     }
 
     @FXML
     protected void onMenuCut() {
-        if (!tabPane.getSelectionModel().isEmpty()) {
-            StackPane sp = (StackPane) tabPane.getSelectionModel().getSelectedItem().getContent();
-            TextView v = (TextView) sp.getChildrenUnmodifiable().get(0);
-            v.handleClipboardCut();
+        TextView activeView = getActiveView();
+        if (activeView != null) {
+            activeView.handleClipboardCut();
         }
     }
 
     @FXML
     protected void onMenuPaste() {
-        if (!tabPane.getSelectionModel().isEmpty()) {
-            StackPane sp = (StackPane) tabPane.getSelectionModel().getSelectedItem().getContent();
-            TextView v = (TextView) sp.getChildrenUnmodifiable().get(0);
-            v.handleClipboardPaste();
+        TextView activeView = getActiveView();
+        if (activeView != null) {
+            activeView.handleClipboardPaste();
         }
     }
 
     @FXML
     protected void onSearchNext() {
-        if (!tabPane.getSelectionModel().isEmpty()) {
-            StackPane sp = (StackPane) tabPane.getSelectionModel().getSelectedItem().getContent();
-            TextView v = (TextView) sp.getChildrenUnmodifiable().get(0);
-            if (v.handleSearch(searchInput.getText())) {
+        TextView activeView = getActiveView();
+        if (activeView != null) {
+            if (activeView.handleSearch(searchInput.getText())) {
                 searchInput.setStyle("-fx-text-fill: green;");
             } else {
                 searchInput.setStyle("-fx-text-fill: red;");
@@ -185,20 +183,24 @@ public class Controller {
         }
     }
 
-
     @FXML
     protected void onSetFont() {
-        System.out.println(fontChoiceBox.getValue());
+        TextView activeView = getActiveView();
+        if (activeView != null) {
+            Font font = new Font(fontChoiceBox.getValue(), Integer.parseInt(fontSizeInput.getText()));
+            activeView.handleSetFont(font);
+        }
+        fontSizeInput.clear();
     }
 
     @FXML
     protected void onSetColor() {
+        TextView activeView = getActiveView();
+        if (activeView != null) {
+            Paint color = Paint.valueOf(colorInput.getText());
+            activeView.handleSetColor(color);
+        }
         colorInput.clear();
-    }
-
-    @FXML
-    protected void onSetFontSize() {
-        fontSizeInput.clear();
     }
 
     private TextView getActiveView() {

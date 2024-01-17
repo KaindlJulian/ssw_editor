@@ -31,11 +31,11 @@ public class Selection {
         if (start.line == end.line) {
             sb.append(start.line.text, start.lineIndex, end.lineIndex + 1);
         } else {
-            start.line.positions.stream().skip(start.lineIndex).forEach(p -> sb.append(p.sc));
+            start.line.positions.stream().skip(start.lineIndex).forEach(p -> sb.append(p.sc.character));
             for (Line l : linesBetween) {
                 sb.append(l.text);
             }
-            end.line.positions.stream().takeWhile(p -> p.lineIndex < end.lineIndex).forEach(p -> sb.append(p.sc));
+            end.line.positions.stream().takeWhile(p -> p.lineIndex < end.lineIndex).forEach(p -> sb.append(p.sc.character));
         }
 
         return sb.toString();

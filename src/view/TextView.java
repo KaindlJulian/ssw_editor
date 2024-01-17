@@ -21,8 +21,6 @@ import java.util.*;
 public class TextView extends Canvas implements UpdateEventListener {
     private static final int MARGIN = 5;
     private static final int SCROLL_LINES = 3;
-    //private static final Font font = Font.font("Arial", 48); // todo
-    //private static final FontMetrics fm = Toolkit.getToolkit().getFontLoader().getFontMetrics(font); // todo
 
     private final PieceList text;
     private final GraphicsContext g;
@@ -44,7 +42,7 @@ public class TextView extends Canvas implements UpdateEventListener {
         heightProperty().addListener(e -> refillFromPosAndDraw(firstTextPosition));
 
         this.g = getGraphicsContext2D();
-        this.text = new PieceList(new Piece(file, 0, (int) file.length())); // todo fix for unicode
+        this.text = new PieceList(new Piece(file, 0, (int) file.length()));
         this.text.addUpdateEventListener(this);
         this.firstTextPosition = 0;
         this.lastTextPosition = 0;
@@ -54,83 +52,6 @@ public class TextView extends Canvas implements UpdateEventListener {
         this.selection = new Selection(firstLine.positions.getFirst(), firstLine.positions.getFirst(), List.of(firstLine));
         this.selection.setEnabled(false);
     }
-
-    /**
-     * Create doubly linked list of lines that fill the available vertical space.
-     *
-     * @param from              y value of starting point
-     * @param to                y value of end point
-     * @param startTextPosition text position to start with
-
-    private Line fill(double from, double to, int startTextPosition) {
-    double y = from;
-    int position = startTextPosition;
-    lastTextPosition = startTextPosition;
-
-    Line line = new Line();
-    Line first = line;
-    int lineNumber = 0;
-
-    // fill the vertical space
-    while (true) {
-    StringBuilder lineText = new StringBuilder();
-    List<CharacterPosition> positions = new ArrayList<>();
-    double xOffset = MARGIN;
-
-    char character = text.readCharAt(position);
-    position++;
-    while (character != '\n' && character != '\0') {
-    double characterWidth = Util.charWidth(fm, character);
-    BoundingBox characterBox = new BoundingBox(xOffset, y, characterWidth, fm.getLineHeight());
-    positions.add(new CharacterPosition(character, position - 1, lineText.length(), characterBox, line));
-    xOffset += characterWidth;
-    lineText.append(character);
-    character = text.readCharAt(position);
-    position++;
-    }
-
-    boolean isEOF = character == '\0';
-
-    // handle newline
-    if (!isEOF) {
-    lineText.append(character);
-    double characterWidth = Util.charWidth(fm, character);
-    BoundingBox characterBox = new BoundingBox(xOffset, y, characterWidth, fm.getLineHeight());
-    positions.add(new CharacterPosition(character, position - 1, lineText.length() - 1, characterBox, line));
-    }
-
-    line.textLength = lineText.length();
-    line.text = lineText.toString();
-    line.lineNumber = lineNumber;
-    line.box = new BoundingBox(MARGIN, y, Util.stringWidth(fm, line.text), fm.getLineHeight());
-    line.baseline = y + fm.getAscent();
-    line.positions = positions;
-
-    y += line.box.height();
-
-    if (!line.positions.isEmpty()) {
-    lastTextPosition = line.positions.getLast().textPosition;
-    } else {
-    lastTextPosition++;
-    }
-
-    if (isEOF) {
-    break;
-    }
-
-    if (y > to) {
-    break;
-    }
-
-    lineNumber++;
-    Line prev = line;
-    line.next = new Line();
-    line = line.next;
-    line.prev = prev;
-    }
-
-    return first;
-    }     */
 
     /**
      * Create doubly linked list of lines that fill the available vertical space.
@@ -224,14 +145,12 @@ public class TextView extends Canvas implements UpdateEventListener {
         g.setFill(Paint.valueOf("f2f2f2"));
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        g.setFill(Paint.valueOf("000000"));
         for (Line l : firstLine) {
-            //g.setFont(font);
             for (CharacterPosition p : l.positions) {
                 g.setFont(p.sc.font);
+                g.setFill(p.sc.color);
                 g.fillText(String.valueOf(p.sc.character), p.box.x, l.baseline);
             }
-            //g.fillText(l.text, l.box.x(), l.baseline);
         }
 
         cursor.draw(g);
@@ -497,6 +416,20 @@ public class TextView extends Canvas implements UpdateEventListener {
 
     public void handleSave() throws IOException {
         text.save();
+    }
+
+    public void handleSetFont(Font font) {
+        if (selection.isEnabled()) {
+            text.setStyle(selection.start.textPosition, selection.end.textPosition + 1, font, null);
+            refillFromPosAndDraw(firstTextPosition);
+        }
+    }
+
+    public void handleSetColor(Paint color) {
+        if (selection.isEnabled()) {
+            text.setStyle(selection.start.textPosition, selection.end.textPosition + 1, null, color);
+            refillFromPosAndDraw(firstTextPosition);
+        }
     }
 
     public boolean handleSearch(String searchWord) {

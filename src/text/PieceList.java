@@ -1,5 +1,7 @@
 package text;
 
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
 import view.StyledCharacter;
 
 import java.io.*;
@@ -16,7 +18,6 @@ public class PieceList implements Iterable<Piece> {
     final File scratch;
     final FileWriter scratchWriter;
     private final List<UpdateEventListener> listeners;
-    private final TreeSet<Integer> newLinePositions;
 
     public PieceList(Piece firstPiece) throws IOException {
         this.firstPiece = firstPiece;
@@ -26,15 +27,6 @@ public class PieceList implements Iterable<Piece> {
         this.scratch.createNewFile();
         this.scratchWriter = new FileWriter(scratch, StandardCharsets.UTF_8);
         this.listeners = new ArrayList<>();
-
-        this.newLinePositions = new TreeSet<>();
-        String a = Files.readString(firstPiece.file.toPath());
-        newLinePositions.add(0);
-        for (int i = 0; i < a.length(); i++) {
-            if (a.charAt(i) == '\n') {
-                newLinePositions.add(i);
-            }
-        }
     }
 
     /**
@@ -95,8 +87,8 @@ public class PieceList implements Iterable<Piece> {
     /**
      * Inserts a string at a position in the text.
      *
-     * @param position  The position after which the character should be inserted.
-     * @param text The string.
+     * @param position The position after which the character should be inserted.
+     * @param text     The string.
      */
     public void insert(int position, String text) {
         Piece p = split(position);
@@ -135,6 +127,31 @@ public class PieceList implements Iterable<Piece> {
         a.next = b.next;
         totalLength = totalLength - (to - from);
         fireUpdateEvent(new UpdateEvent.Delete(from, to));
+    }
+
+    /**
+     * @param from  Set style after this position
+     * @param to    Set style before and at this position
+     * @param font  The font name and size
+     * @param color The color
+     */
+    public void setStyle(int from, int to, Font font, Paint color) {
+        Piece a = split(from);
+        Piece b = split(to);
+
+        Piece p = new Piece(null, 0, 0);
+        p.next = a.next;
+        p = p.next;
+        while (true) {
+            if (font != null) {
+                p.font = font;
+            }
+            if (color != null) {
+                p.color = color;
+            }
+            p = p.next;
+            if (p.next == null || p.next == b.next) break;
+        }
     }
 
     public void addUpdateEventListener(UpdateEventListener l) {

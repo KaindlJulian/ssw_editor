@@ -61,7 +61,7 @@
             </MenuItem>
             <MenuItem mnemonicParsing="false" text="Font Size">
                 <graphic>
-                    <TextField fx:id="fontSizeInput" onAction="#onSetFontSize"/>
+                    <TextField fx:id="fontSizeInput" onAction="#onSetFont"/>
                 </graphic>
             </MenuItem>
         </Menu>
