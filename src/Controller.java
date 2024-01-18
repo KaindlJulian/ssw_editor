@@ -19,7 +19,6 @@ import java.util.List;
 
 public class Controller {
 
-
     @FXML
     TabPane tabPane;
 
@@ -27,7 +26,7 @@ public class Controller {
     TextField searchInput;
 
     @FXML
-    TextField colorInput;
+    ColorPicker colorPicker;
 
     @FXML
     TextField fontSizeInput;
@@ -108,10 +107,7 @@ public class Controller {
         scrollBar.setOrientation(Orientation.VERTICAL);
         scrollBar.maxHeightProperty().bind(view.heightProperty());
 
-        scrollBar.valueProperty().addListener((obs, o, n) -> {
-            view.scroll(n.intValue());
-        });
-
+        scrollBar.valueProperty().addListener((obs, o, n) -> view.scroll(n.intValue()));
         view.setOnScroll(e -> {
             scrollBar.setMax(view.getTextLength());
             if (e.getDeltaY() < 0) {
@@ -187,6 +183,9 @@ public class Controller {
     protected void onSetFont() {
         TextView activeView = getActiveView();
         if (activeView != null) {
+            if (fontSizeInput.getText().isEmpty()) {
+                return;
+            }
             Font font = new Font(fontChoiceBox.getValue(), Integer.parseInt(fontSizeInput.getText()));
             activeView.handleSetFont(font);
         }
@@ -197,10 +196,9 @@ public class Controller {
     protected void onSetColor() {
         TextView activeView = getActiveView();
         if (activeView != null) {
-            Paint color = Paint.valueOf(colorInput.getText());
+            Paint color = Paint.valueOf(colorPicker.getValue().toString());
             activeView.handleSetColor(color);
         }
-        colorInput.clear();
     }
 
     private TextView getActiveView() {

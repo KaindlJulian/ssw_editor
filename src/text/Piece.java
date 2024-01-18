@@ -6,8 +6,8 @@ import javafx.scene.text.Font;
 import java.io.File;
 
 public class Piece {
-    private static final Font defaultFont = javafx.scene.text.Font.font("Arial", 32);
-    private static final Paint defaultColor = Paint.valueOf("000000");
+    public static final Font defaultFont = javafx.scene.text.Font.font("Arial", 32);
+    public static final Paint defaultColor = Paint.valueOf("000000");
 
     File file;
     int offset;

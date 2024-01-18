@@ -7,6 +7,11 @@
     -fx-padding: 0.3em;
 }
 
+
+.choiceBox {
+    -fx-text-fill: black !important;
+}
+
 .menu-item {
     -fx-padding: 4;
 }

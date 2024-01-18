@@ -14,8 +14,11 @@ import text.UpdateEvent;
 import text.UpdateEvent.*;
 import text.UpdateEventListener;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 public class TextView extends Canvas implements UpdateEventListener {
@@ -42,7 +45,7 @@ public class TextView extends Canvas implements UpdateEventListener {
         heightProperty().addListener(e -> refillFromPosAndDraw(firstTextPosition));
 
         this.g = getGraphicsContext2D();
-        this.text = new PieceList(new Piece(file, 0, (int) file.length()));
+        this.text = createPieceList(file);
         this.text.addUpdateEventListener(this);
         this.firstTextPosition = 0;
         this.lastTextPosition = 0;
@@ -51,6 +54,31 @@ public class TextView extends Canvas implements UpdateEventListener {
         this.cursor = new Cursor(CursorStyle.Line, firstLine.positions.getFirst());
         this.selection = new Selection(firstLine.positions.getFirst(), firstLine.positions.getFirst(), List.of(firstLine));
         this.selection.setEnabled(false);
+    }
+
+    private PieceList createPieceList(File file) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String styleMetadata = br.readLine();
+
+        // no metadata
+        if (!styleMetadata.endsWith("|")) {
+            return new PieceList(new Piece(file, 0, (int) file.length()));
+        }
+
+        int offset = styleMetadata.length() + 1;
+        PieceList pl = new PieceList(new Piece(file, offset, (int) (file.length() - offset)));
+
+        String[] styles = styleMetadata.split("\\|");
+        for (String s : styles) {
+            String[] csv = s.split(",");
+            int start = Integer.parseInt(csv[0]);
+            int end = start + Integer.parseInt(csv[1]);
+            Font font = new Font(csv[2], Double.parseDouble(csv[3]));
+            Paint color = Paint.valueOf(csv[4]);
+            pl.setStyle(start, end, font, color);
+        }
+
+        return pl;
     }
 
     /**
@@ -78,14 +106,14 @@ public class TextView extends Canvas implements UpdateEventListener {
             StyledCharacter biggestCharacter = null;
 
             StyledCharacter sc = text.readStyledCharAt(position);
-            //sc = new StyledCharacter(sc.character, new Font("Arial", 48), sc.color);
+
             position++;
             while (sc != null && sc.character != '\n') {
                 double characterWidth = sc.getCharacterWidth();
                 BoundingBox characterBox = new BoundingBox(xOffset, y, characterWidth, 0.0); // height is set at end of line
                 positions.add(new CharacterPosition(sc, position - 1, lineText.length(), characterBox, line));
                 xOffset += characterWidth;
-                if (sc.getLineHeight() >= maxCharacterHeight) {
+                if (sc.getLineHeight() > maxCharacterHeight) {
                     maxCharacterHeight = sc.getLineHeight();
                     biggestCharacter = sc;
                 }
@@ -107,7 +135,9 @@ public class TextView extends Canvas implements UpdateEventListener {
             line.text = lineText.toString();
             line.lineNumber = lineNumber;
             line.positions = positions;
-            assert biggestCharacter != null;
+            if (biggestCharacter == null) {
+                biggestCharacter = new StyledCharacter.Default();
+            }
             final double lineHeight = biggestCharacter.getLineHeight();
             line.box = new BoundingBox(MARGIN, y, xOffset - MARGIN, lineHeight);
             line.baseline = y + biggestCharacter.fm.getAscent();
@@ -350,6 +380,14 @@ public class TextView extends Canvas implements UpdateEventListener {
         draw();
     }
 
+    private void updateSelection() {
+        CharacterPosition start = characterPositionFromTextPosition(selection.start.textPosition);
+        CharacterPosition end = characterPositionFromTextPosition(selection.end.textPosition);
+        boolean wasEnabled = selection.isEnabled();
+        selection = new Selection(start, end, linesBetweenPositions(start, end));
+        selection.setEnabled(wasEnabled);
+    }
+
     private CharacterPosition characterPositionFromCoordinates(double x, double y) {
         for (Line l : firstLine) {
             for (CharacterPosition p : l.positions) {
@@ -422,6 +460,8 @@ public class TextView extends Canvas implements UpdateEventListener {
         if (selection.isEnabled()) {
             text.setStyle(selection.start.textPosition, selection.end.textPosition + 1, font, null);
             refillFromPosAndDraw(firstTextPosition);
+            updateSelection();
+            draw();
         }
     }
 
@@ -429,6 +469,8 @@ public class TextView extends Canvas implements UpdateEventListener {
         if (selection.isEnabled()) {
             text.setStyle(selection.start.textPosition, selection.end.textPosition + 1, null, color);
             refillFromPosAndDraw(firstTextPosition);
+            updateSelection();
+            draw();
         }
     }
 

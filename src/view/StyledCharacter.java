@@ -25,4 +25,10 @@ public class StyledCharacter {
     public double getLineHeight() {
         return fm.getLineHeight();
     }
+
+    public static class Default extends StyledCharacter {
+        public Default() {
+            super(' ', javafx.scene.text.Font.font("Arial", 32), Paint.valueOf("000000"));
+        }
+    }
 }

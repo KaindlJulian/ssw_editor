@@ -48,7 +48,7 @@ public class PieceList implements Iterable<Piece> {
             int split2 = length - position;
             int split1 = p.length - split2;
             p.length = split1;
-            Piece q = new Piece(p.file, p.offset + split1, split2);
+            Piece q = new Piece(p.file, p.offset + split1, split2, p.font, p.color);
             q.next = p.next;
             p.next = q;
         }
@@ -141,8 +141,8 @@ public class PieceList implements Iterable<Piece> {
 
         Piece p = new Piece(null, 0, 0);
         p.next = a.next;
-        p = p.next;
-        while (true) {
+
+        while (p != null && p != b.next) {
             if (font != null) {
                 p.font = font;
             }
@@ -150,7 +150,6 @@ public class PieceList implements Iterable<Piece> {
                 p.color = color;
             }
             p = p.next;
-            if (p.next == null || p.next == b.next) break;
         }
     }
 
@@ -231,9 +230,12 @@ public class PieceList implements Iterable<Piece> {
      * Save the piece list to the original file.
      */
     public void save() throws IOException {
-        byte[] fileBuffer = new byte[totalLength];
-        int currentIndex = 0;
+        byte[] styleMetadata = styleMetadataLine().getBytes();
+        byte[] fileBuffer = new byte[styleMetadata.length + totalLength];
 
+        System.arraycopy(styleMetadata, 0, fileBuffer, 0, styleMetadata.length);
+
+        int currentIndex = styleMetadata.length;
         for (Piece p : this) {
             try (RandomAccessFile f = new RandomAccessFile(p.file, "r")) {
                 byte[] buffer = new byte[p.length];
@@ -245,6 +247,25 @@ public class PieceList implements Iterable<Piece> {
         }
 
         Files.write(firstPiece.file.toPath(), fileBuffer, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    private String styleMetadataLine() {
+        StringBuilder sb = new StringBuilder();
+        int textPosition = 0;
+        for (Piece p : this) {
+            sb.append(textPosition);
+            sb.append(",");
+            sb.append(p.length);
+            sb.append(",");
+            sb.append(p.font.getName());
+            sb.append(",");
+            sb.append(p.font.getSize());
+            sb.append(",");
+            sb.append(p.color);
+            sb.append("|");
+            textPosition += p.length;
+        }
+        return sb + "\n";
     }
 
     public int getTotalLength() {
